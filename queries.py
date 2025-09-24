@@ -267,7 +267,36 @@ def f8():
     первой буквы имени и точки (напр. Иванов И.).
     
     """
+    print("\n")
+    con = sqlite3.connect("ursei.db")
+    curs = con.cursor()
+
+    curs.execute('''
+                SELECT d.name AS "Факультет",
+                g.name AS "Группа",
+                s.surname || ' ' || SUBSTR(s.name, 1, 1) || '.' AS "ФИО"
+                FROM student s
+                JOIN "group" g ON s.group_id = g.id
+                JOIN department d ON g.department_id = d.id
+                WHERE d.name <> 'Юриспруденция';
+                 ''')
     
+    #получим имена столбцов из свойства description курсора
+    col_names = [cn[0] for cn in curs.description]
+    #получим данные
+    rows = curs.fetchall()
+
+    #Инициализируем таблицу c заголовками
+    pt = PrettyTable(col_names)
+    pt.align[col_names[0]] = "l" # Выравнивание столбца по левому краю
+
+    #Добавим данные в таблицу
+    for row in rows:
+        pt.add_row(row)
+    
+    #Выводим таблицу
+    print(pt)
+    con.close()
 
 def f9():
     """Выведите список студентов юридического факультета, у которых возраст
@@ -275,12 +304,79 @@ def f9():
     Атрибуты вывода: 'Факультет', 'Фамилия', 'Возраст'.
 
     """
+     print("\n")
+    con = sqlite3.connect("ursei.db")
+    curs = con.cursor()
+
+    curs.execute('''
+                 SELECT d.name AS "Факультет",
+                 s.surname AS "Фамилия",
+                 s.age AS "Возраст"
+                 FROM student s
+                 JOIN "group" g ON s.group_id = g.id
+                 JOIN department d ON g.department_id = d.id
+                 WHERE d.name = 'Юриспруденция'
+                 AND s.age < (
+                 SELECT AVG(s2.age)
+                 FROM student s2
+                 JOIN "group" g2 ON s2.group_id = g2.id
+                 JOIN department d2 ON g2.department_id = d2.id
+                 WHERE d2.name = 'Юриспруденция'
+                 );
+                 ''')
     
+    #получим имена столбцов из свойства description курсора
+    col_names = [cn[0] for cn in curs.description]
+    #получим данные
+    rows = curs.fetchall()
+
+    #Инициализируем таблицу c заголовками
+    pt = PrettyTable(col_names)
+    pt.align[col_names[0]] = "l" # Выравнивание столбца по левому краю
+
+    #Добавим данные в таблицу
+    for row in rows:
+        pt.add_row(row)
+    
+    #Выводим таблицу
+    print(pt)
+    con.close()
+
 def f10():
     """Выведите список студентов, у которых фамилия начинается на букву 'К'.
     Атрибуты вывода: 'Факультет', 'Группа', 'Фамилия'.
 
     """
+    print("\n")
+    con = sqlite3.connect("ursei.db")
+    curs = con.cursor()
+
+    curs.execute('''
+                SELECT d.name AS "Факультет",
+                g.name AS "Группа",
+                s.surname AS "Фамилия"
+                FROM student s
+                JOIN "group" g ON s.group_id = g.id
+                JOIN department d ON g.department_id = d.id
+                WHERE s.surname LIKE 'К%';
+                 ''')
+    
+    #получим имена столбцов из свойства description курсора
+    col_names = [cn[0] for cn in curs.description]
+    #получим данные
+    rows = curs.fetchall()
+
+    #Инициализируем таблицу c заголовками
+    pt = PrettyTable(col_names)
+    pt.align[col_names[0]] = "l" # Выравнивание столбца по левому краю
+
+    #Добавим данные в таблицу
+    for row in rows:
+        pt.add_row(row)
+    
+    #Выводим таблицу
+    print(pt)
+    con.close()
 
 def f11():
     """Выведите список студентов группы ЮРИ-401 (имя группы произвольно),
@@ -288,6 +384,36 @@ def f11():
     Атрибуты вывода: 'Группа', 'Имя', 'Фамилия'.
 
     """
+    print("\n")
+    con = sqlite3.connect("ursei.db")
+    curs = con.cursor()
+
+    curs.execute('''
+                SELECT g.name AS "Группа",
+                s.name AS "Имя",
+                s.surname AS "Фамилия"
+                FROM student s
+                JOIN "group" g ON s.group_id = g.id
+                WHERE g.name = 'ТОР-102'
+                AND s.name LIKE '%й';
+                 ''')
+    
+    #получим имена столбцов из свойства description курсора
+    col_names = [cn[0] for cn in curs.description]
+    #получим данные
+    rows = curs.fetchall()
+
+    #Инициализируем таблицу c заголовками
+    pt = PrettyTable(col_names)
+    pt.align[col_names[0]] = "l" # Выравнивание столбца по левому краю
+
+    #Добавим данные в таблицу
+    for row in rows:
+        pt.add_row(row)
+    
+    #Выводим таблицу
+    print(pt)
+    con.close()
 
 def f12():
     '''Выведите студента с самой длинной по количеству символов фамилией.
@@ -305,5 +431,32 @@ def f14():
     '''Выведите 3 последние записи из таблицы student.
     Сортировку не использовать.
     Атрибуты вывода: id, surname
-
     '''
+    print("\n")
+    con = sqlite3.connect("ursei.db")
+    curs = con.cursor()
+
+    curs.execute('''
+                 SELECT id, surname
+                FROM student
+                LIMIT 3 OFFSET (
+                    SELECT COUNT(*) FROM student
+                ) - 3;
+                 ''')
+    
+    #получим имена столбцов из свойства description курсора
+    col_names = [cn[0] for cn in curs.description]
+    #получим данные
+    rows = curs.fetchall()
+
+    #Инициализируем таблицу c заголовками
+    pt = PrettyTable(col_names)
+    pt.align[col_names[0]] = "l" # Выравнивание столбца по левому краю
+
+    #Добавим данные в таблицу
+    for row in rows:
+        pt.add_row(row)
+    
+    #Выводим таблицу
+    print(pt)
+    con.close()
