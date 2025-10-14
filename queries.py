@@ -420,6 +420,34 @@ def f12():
     Атрибуты вывода: "Фамилия", "Кол-во символов"
 
     '''
+     print("\n")
+    con = sqlite3.connect("ursei.db")
+    curs = con.cursor()
+
+    curs.execute('''
+                 SELECT s.surname AS "Фамилия",
+                LENGTH(s.surname) AS "Кол-во символов"
+                FROM student s
+                ORDER BY LENGTH(s.surname) DESC
+                LIMIT 1;
+                 ''')
+    
+    #получим имена столбцов из свойства description курсора
+    col_names = [cn[0] for cn in curs.description]
+    #получим данные
+    rows = curs.fetchall()
+
+    #Инициализируем таблицу c заголовками
+    pt = PrettyTable(col_names)
+    pt.align[col_names[0]] = "l" # Выравнивание столбца по левому краю
+
+    #Добавим данные в таблицу
+    for row in rows:
+        pt.add_row(row)
+    
+    #Выводим таблицу
+    print(pt)
+    con.close()
 
 def f13():
     '''Выведите уникальный список женских имен и количество их повторений.
@@ -427,6 +455,35 @@ def f13():
     Атрибуты вывода: "Фамилия", "Кол-во повторений"
 
     '''
+     print("\n")
+    con = sqlite3.connect("ursei.db")
+    curs = con.cursor()
+
+    curs.execute('''
+                 SELECT s.name AS "Фамилия",
+                COUNT(*) AS "Кол-во повторений"
+                FROM student s
+                WHERE s.gender = 'Женский'
+                GROUP BY s.name
+                ORDER BY COUNT(*) DESC;
+                 ''')
+    
+    #получим имена столбцов из свойства description курсора
+    col_names = [cn[0] for cn in curs.description]
+    #получим данные
+    rows = curs.fetchall()
+
+    #Инициализируем таблицу c заголовками
+    pt = PrettyTable(col_names)
+    pt.align[col_names[0]] = "l" # Выравнивание столбца по левому краю
+
+    #Добавим данные в таблицу
+    for row in rows:
+        pt.add_row(row)
+    
+    #Выводим таблицу
+    print(pt)
+    con.close()
 def f14():
     '''Выведите 3 последние записи из таблицы student.
     Сортировку не использовать.
@@ -460,3 +517,4 @@ def f14():
     #Выводим таблицу
     print(pt)
     con.close()
+
